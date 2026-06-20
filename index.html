@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SicAir · SicTox — EDAR Rubí</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #fff; }
+    #root { min-height: 100vh; }
+    #loading {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; flex-direction: column; gap: 16px;
+      font-family: system-ui; color: #888;
+    }
+    .spinner {
+      width: 40px; height: 40px; border: 3px solid #f0f0f0;
+      border-top-color: #2d7a27; border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div id="loading">
+    <div class="spinner"></div>
+    <div>Cargando datos EDAR Rubí...</div>
+  </div>
+  <div id="root" style="display:none"></div>
+
+  <script>
+    // Inyectar recharts en window para que el JSX lo encuentre
+    window.Recharts = Recharts;
+  </script>
+
+  <script type="text/babel" data-type="module" src="./app.jsx"></script>
+
+  <script>
+    // Cargar data.json y arrancar la app cuando esté listo
+    async function arrancar() {
+      try {
+        const res = await fetch('./public/data.json?t=' + Date.now());
+        if (!res.ok) throw new Error('Sin datos');
+        const json = await res.json();
+        window.__RUBI_DATA__ = json;
+      } catch(e) {
+        console.warn('No se pudo cargar data.json, modo manual activo:', e.message);
+        window.__RUBI_DATA__ = null;
+      }
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('root').style.display = 'block';
+    }
+    arrancar();
+  </script>
+</body>
+</html>
