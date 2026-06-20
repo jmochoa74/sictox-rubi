@@ -1356,7 +1356,7 @@ function OnboardingPanel({onCSV,onXLSX,onDemo,hasData}){
 }
 
 // ── App ───────────────────────────────────────────────────────────
-export default function App(){
+function App(){
   const [data,        setData]        = useState(null);
   const [demoMode,    setDemoMode]    = useState(false);
   const [tab,         setTab]         = useState("sictox");
@@ -1614,3 +1614,8 @@ export default function App(){
     </div>
   );
 }
+
+
+// ── Arrancar app ─────────────────────────────────────────────────
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(App));
