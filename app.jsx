@@ -1,9 +1,9 @@
-import { useState, useRef, useCallback, useEffect } from "react";
-import {
+const { useState, useRef, useCallback, useEffect } = React;
+const {
   ComposedChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Area, BarChart, Bar, ReferenceLine,
   Legend, Scatter, ScatterChart
-} from "recharts";
+} = Recharts;
 
 // ── Colores ────────────────────────────────────────────────────────
 const C = {
@@ -835,7 +835,6 @@ const HOUR_RISK = [0.25,0.25,0.25,0.26,0.26,0.26,0.22,0.22,0.22,0.17,0.17,0.17,0
 const DOW_RISK  = [0.22,0.21,0.21,0.23,0.24,0.23,0.22]; // Dom-Sáb (getDay: 0=Dom)
 const DIAS_ES   = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
 
-function sigmoid(x) { return 1/(1+Math.exp(-x)); }
 
 function calcRiesgo(data) {
   if(!data?.length) return null;
