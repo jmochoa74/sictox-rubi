@@ -634,7 +634,7 @@ function GraficasPanel({data, curvas, setCurvas, cfg}){
   useEffect(()=>{
     if(!curvas){
       setCargando(true);
-      fetch('./public/curvas.json?t='+Date.now())
+      fetch('./curvas.json?t='+Date.now())
         .then(r=>r.ok?r.json():Promise.reject())
         .then(json=>{ setCurvas(json.curvas||{}); setCargando(false); })
         .catch(()=>setCargando(false));
@@ -1491,7 +1491,7 @@ export default function App(){
   useEffect(()=>{
     async function cargarAuto(){
       try{
-        const res=await fetch('./public/data.json?t='+Date.now());
+        const res=await fetch('./data.json?t='+Date.now());
         if(!res.ok) return;
         const json=await res.json();
         if(!json?.registros?.length) return;
