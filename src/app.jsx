@@ -1384,7 +1384,7 @@ function CalidadPanel({data,cfg}){
         <KpiCard icon="📊" label="Total tests"       value={total}   unit="registros brutos"         color={C.text}/>
         <KpiCard icon="✅" label="Tests válidos"     value={valid}   unit="O₂ inicial ≥ 2 mg/L"          color={C.green}/>
         <KpiCard icon="📡" label="Inválidos por Rs"  value={invRs}   unit={`Rs1 ≤ ${cfg.rs_min}`}    color={invRs>100?C.red:C.amber}/>
-        <KpiCard icon="💨" label="Inválidos por O₂" value={invOx}   unit="O₂ inicial < 4 mg/L"      color={invOx>100?C.red:C.amber}/>
+        <KpiCard icon="💨" label="Inválidos por O₂" value={invOx}   unit="O₂ inicial < 2 mg/L"      color={invOx>100?C.red:C.amber}/>
       </div>
       <div style={{overflowX:"auto"}}>
         <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
