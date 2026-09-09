@@ -795,7 +795,7 @@ function GraficasPanel({data, curvas, setCurvas, cfg, token, instId}){
         <div style={{textAlign:"center",padding:"40px 20px",color:C.muted,background:"#fff",borderRadius:16,border:"1px solid #f0f0f0"}}>
           <div style={{fontSize:32,marginBottom:12}}>📉</div>
           <div style={{fontSize:14,fontWeight:600}}>Selecciona tests de la tabla para ver sus curvas</div>
-          <div style={{fontSize:12,marginTop:6}}>Tests con ⚠️ tienen oxígeno inicial bajo — aireación deficiente</div>
+          <div style={{fontSize:12,marginTop:6}}>Tests con ⚠️ tienen oxígeno inicial por encima de 4 mg/L en alguna etapa</div>
         </div>
       )}
     </div>
@@ -1363,8 +1363,8 @@ function AlertasPanel({alertas,setAlertas,disparadas,cfg,setCfg}){
 function CalidadPanel({data,cfg}){
   if(!data?.length) return null;
   const total=data.length;
-  const invRs  = data.filter(d=>d.RS1!=null&&d.RS1<=cfg.rs_min).length;
-  const invOx  = data.filter(d=>(d.ox_max_v1??0)>0&&(d.ox_max_v1??0)<2).length;
+  const invRs  = data.filter(d=>d.RS1!=null&&d.RS1<=10).length;
+  const invOx  = data.filter(d=>!(d.ox_ini_v1!=null&&d.ox_ini_v1>4&&d.ox_ini_v2!=null&&d.ox_ini_v2>4)).length;
   const valid  = data.filter(d=>d.valido).length;
   const inv    = total-valid;
   const pctInv = +(100*inv/total).toFixed(1);
@@ -1375,8 +1375,8 @@ function CalidadPanel({data,cfg}){
     byMes[k].total++;
     if(d.valido) byMes[k].valid++;
     else{
-      if(d.RS1!=null&&d.RS1<=cfg.rs_min) byMes[k].invRs++;
-      if((d.ox_max_v1??0)>0&&(d.ox_max_v1??0)<2) byMes[k].invOx++;
+      if(d.RS1!=null&&d.RS1<=10) byMes[k].invRs++;
+      if(!(d.ox_ini_v1!=null&&d.ox_ini_v1>4&&d.ox_ini_v2!=null&&d.ox_ini_v2>4)) byMes[k].invOx++;
     }
   });
   const meses=Object.values(byMes).map(m=>({...m,
@@ -1384,12 +1384,12 @@ function CalidadPanel({data,cfg}){
   }));
   return(
     <div style={{background:"#fff",border:"1px solid #f0f0f0",borderRadius:16,padding:"18px 20px",marginBottom:14,boxShadow:"0 1px 3px rgba(0,0,0,0.05)"}}>
-      <div style={{fontSize:13,fontWeight:700,marginBottom:14}}>🔬 Calidad de datos — filtro O₂ inicial ≥ 2 mg/L</div>
+      <div style={{fontSize:13,fontWeight:700,marginBottom:14}}>🔬 Calidad de datos — filtro Rs1&gt;10 + O₂ inicio &gt;4 mg/L (ambas etapas)</div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:16}}>
         <KpiCard icon="📊" label="Total tests"       value={total}   unit="registros brutos"         color={C.text}/>
-        <KpiCard icon="✅" label="Tests válidos"     value={valid}   unit="O₂ inicial ≥ 2 mg/L"          color={C.green}/>
-        <KpiCard icon="📡" label="Inválidos por Rs"  value={invRs}   unit={`Rs1 ≤ ${cfg.rs_min}`}    color={invRs>100?C.red:C.amber}/>
-        <KpiCard icon="💨" label="Inválidos por O₂" value={invOx}   unit="O₂ inicial < 2 mg/L"      color={invOx>100?C.red:C.amber}/>
+        <KpiCard icon="✅" label="Tests válidos"     value={valid}   unit="Rs1>10 + O₂>4 en V1 y V2"          color={C.green}/>
+        <KpiCard icon="📡" label="Inválidos por Rs"  value={invRs}   unit="Rs1 ≤ 10"    color={invRs>100?C.red:C.amber}/>
+        <KpiCard icon="💨" label="Inválidos por O₂" value={invOx}   unit="O₂ inicio ≤ 4 en V1 o V2"      color={invOx>100?C.red:C.amber}/>
       </div>
       <div style={{overflowX:"auto"}}>
         <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
