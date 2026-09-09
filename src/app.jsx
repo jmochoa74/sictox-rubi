@@ -411,6 +411,8 @@ function Semaforo({data,alertasDisp,cfg}){
 }
 
 // ── KPIs ──────────────────────────────────────────────────────────
+const SICAIR_CONTRATADO = false; // Rubí: cliente no ha contratado el servicio SicAir todavía
+
 function KpisPanel({data,pred,cfg,hwProblema}){
   if(!data?.length) return null;
   const valid=data.filter(d=>d.valido);
@@ -425,15 +427,22 @@ function KpisPanel({data,pred,cfg,hwProblema}){
   return(
     <div style={{marginBottom:20,display:"grid",gap:10}}>
       <div>
-        <div style={{...labelStyle,background:C.limeFade,color:C.green}}>⚡ SicAir — Control de aireación</div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
-          <KpiCard icon="🔬" label="AUR actual"     value={last.AUR!=null?last.AUR.toFixed(2):"—"} unit="mgO₂/gSSV·h" color={last.AUR!=null&&last.AUR<cfg.aur_bajo?C.red:C.green}/>
-          <KpiCard icon="🔮" label="AUR pred. +1c"  value={pred?.aur_pred?.toFixed(2)??"—"} unit="mgO₂/gSSV·h" color={C.lime} sub={pred?`→ ${pred.mins_pred} min recomendados`:""}/>
-          {hwProblema
-            ? <KpiCard icon="🔧" label="Estado SN8" value={`${hwProblema.horasSin}h`} unit={`sin datos · ${hwProblema.nSinDatos} tests fallidos`} color={C.red} sub={`Último válido: ${hwProblema.ultimoCompleto}`}/>
-            : <KpiCard icon="⏱️" label="Tiempo actual soplante" value={pred?.mins_actual??"—"} unit="min/ciclo (referencia)" color={C.lime}/>
-          }
-        </div>
+        <div style={{...labelStyle,background:"#f4f4f4",color:C.muted}}>⚡ SicAir — Control de aireación</div>
+        {SICAIR_CONTRATADO ? (
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+            <KpiCard icon="🔬" label="AUR actual"     value={last.AUR!=null?last.AUR.toFixed(2):"—"} unit="mgO₂/gSSV·h" color={last.AUR!=null&&last.AUR<cfg.aur_bajo?C.red:C.green}/>
+            <KpiCard icon="🔮" label="AUR pred. +1c"  value={pred?.aur_pred?.toFixed(2)??"—"} unit="mgO₂/gSSV·h" color={C.lime} sub={pred?`→ ${pred.mins_pred} min recomendados`:""}/>
+            {hwProblema
+              ? <KpiCard icon="🔧" label="Estado SN8" value={`${hwProblema.horasSin}h`} unit={`sin datos · ${hwProblema.nSinDatos} tests fallidos`} color={C.red} sub={`Último válido: ${hwProblema.ultimoCompleto}`}/>
+              : <KpiCard icon="⏱️" label="Tiempo actual soplante" value={pred?.mins_actual??"—"} unit="min/ciclo (referencia)" color={C.lime}/>
+            }
+          </div>
+        ) : (
+          <div style={{background:"#fafafa",border:"1px dashed #e0e0e0",borderRadius:10,padding:"10px 14px",display:"flex",alignItems:"center",gap:8}}>
+            <span style={{fontSize:14}}>🔒</span>
+            <span style={{fontSize:11,color:C.muted}}>Sin datos — servicio SicAir no contratado</span>
+          </div>
+        )}
       </div>
       <div>
         <div style={{...labelStyle,background:C.redFade,color:C.red}}>☣️ SicTox — Control de toxicidad</div>
@@ -1586,21 +1595,17 @@ function Dashboard({ token, instId, onLogout }){
 
   const TABS_SICAIR = [
     {id:"pred",      label:"🔮 Predicción",   disabled:!data},
-    {id:"historico", label:"📈 Histórico AUR", disabled:!data},
-    {id:"graficas",  label:"📉 Gráficas test", disabled:!data},
-  ];
-  const TABS_SICTOX = [
-    {id:"sictox",      label:"☣️ Episodios INH",   disabled:!data, badge:alertasDisp.filter(a=>["inh_aviso","inh_critico","vertido"].includes(a.id)).length},
-    {id:"riesgo",      label:"🎯 Riesgo vertido",   disabled:!data},
   ];
   const TABS_GENERAL = [
     {id:"calidad",     label:"🔬 Calidad datos",    disabled:!data},
     {id:"incidencias", label:"📋 Incidencias",      disabled:false, badge:incidencias.length},
     {id:"alertas",     label:"🔔 Alertas / Config", disabled:false, badge:alertasVis.length, badgeColor:alertasVis.some(a=>a.severidad==="critica")?C.red:C.amber},
+    {id:"historico",   label:"📈 Histórico AUR",     disabled:!data},
+    {id:"graficas",    label:"📉 Gráficas test",     disabled:!data},
   ];
 
   const isSicAir  = TABS_SICAIR.some(t=>t.id===tab);
-  const isSicTox  = TABS_SICTOX.some(t=>t.id===tab);
+  const isSicTox  = tab==="sictox";
   const accentTab = isSicTox ? C.red : isSicAir ? C.green : C.muted;
 
   function TabBar({tabs, accent}){
@@ -1646,8 +1651,6 @@ function Dashboard({ token, instId, onLogout }){
           <div style={{width:1,height:24,background:"#e8e8e8"}}/>
           <div>
             <div style={{fontSize:15,fontWeight:700,letterSpacing:"-0.02em"}}>
-              SIC<span style={{color:C.green}}>AIR</span>
-              <span style={{color:"#d0d0d0",margin:"0 6px",fontWeight:300}}>·</span>
               <span style={{color:C.red}}>SicTox</span>
               <span style={{fontWeight:300,color:"#bbb",marginLeft:6}}>Rubí 1.0</span>
             </div>
@@ -1678,30 +1681,10 @@ function Dashboard({ token, instId, onLogout }){
         {data&&<Semaforo data={data} alertasDisp={alertasDisp} cfg={cfg}/>}
         {data&&<KpisPanel data={data} pred={pred} cfg={cfg} hwProblema={hwProblema}/>}
 
-        {/* ── Navegación SicTox / SicAir (horizontal) ── */}
-        <div style={{display:"flex",gap:0,marginBottom:20,borderBottom:"1px solid #f0f0f0"}}>
-          {/* Bloque SicTox */}
-          <div style={{display:"flex",alignItems:"stretch",marginBottom:-1}}>
-            <div style={{display:"flex",alignItems:"center",padding:"0 14px 0 2px",borderRight:`2px solid ${C.red}22`,marginRight:4}}>
-              <span style={{fontSize:10,fontWeight:800,letterSpacing:"0.08em",color:C.red,textTransform:"uppercase"}}>SicTox</span>
-            </div>
-            <TabBar tabs={TABS_SICTOX} accent={C.red}/>
-          </div>
-          {/* Separador */}
-          <div style={{width:1,background:"#e8e8e8",margin:"8px 10px"}}/>
-          {/* Bloque SicAir */}
-          <div style={{display:"flex",alignItems:"stretch",marginBottom:-1}}>
-            <div style={{display:"flex",alignItems:"center",padding:"0 14px 0 4px",borderRight:`2px solid ${C.green}22`,marginRight:4}}>
-              <span style={{fontSize:10,fontWeight:800,letterSpacing:"0.08em",color:C.green,textTransform:"uppercase"}}>SicAir</span>
-            </div>
-            <TabBar tabs={TABS_SICAIR} accent={C.green}/>
-          </div>
-        </div>
-
         {/* ── Layout principal: sidebar General + contenido ── */}
         <div style={{display:"flex",gap:0,alignItems:"flex-start"}}>
 
-          {/* Sidebar General */}
+          {/* Sidebar General + SicAir */}
           <div style={{
             width:160,flexShrink:0,
             background:"#fafafa",
@@ -1728,6 +1711,22 @@ function Dashboard({ token, instId, onLogout }){
                 {t.badge>0&&<span style={{background:t.badgeColor||C.amber,color:"#fff",borderRadius:20,padding:"1px 6px",fontSize:9,fontWeight:700}}>{t.badge}</span>}
               </button>
             ))}
+            <div style={{height:1,background:"#e8e8e8",margin:"10px 14px"}}/>
+            <div style={{fontSize:9,fontWeight:800,letterSpacing:"0.1em",color:C.green,textTransform:"uppercase",padding:"0 14px",marginBottom:8}}>SicAir</div>
+            {TABS_SICAIR.map(t=>(
+              <button key={t.id} onClick={()=>!t.disabled&&setTab(t.id)} style={{
+                display:"flex",alignItems:"center",justifyContent:"space-between",
+                width:"100%",background:tab===t.id?"#fff":"transparent",
+                color:tab===t.id?C.green:t.disabled?"#d0d0d0":C.muted,
+                border:"none",
+                borderLeft:tab===t.id?`3px solid ${C.green}`:"3px solid transparent",
+                padding:"8px 14px",fontSize:12,fontWeight:tab===t.id?700:400,
+                cursor:t.disabled?"default":"pointer",
+                textAlign:"left",transition:"all .15s",
+              }}>
+                <span>{t.label}</span>
+              </button>
+            ))}
           </div>
 
           {/* Contenido principal */}
@@ -1735,8 +1734,13 @@ function Dashboard({ token, instId, onLogout }){
             {tab==="pred"        &&data&&<PredPanel        data={data} pred={pred} cfg={cfg}/>}
             {tab==="historico"   &&data&&<HistoricoPanel   data={data} cfg={cfg}/>}
             {tab==="graficas"    &&data&&<GraficasPanel    data={data} curvas={curvas} setCurvas={setCurvas} cfg={cfg} token={token} instId={instId}/>}
-            {tab==="sictox"      &&data&&<SicToxPanel      data={data} inhUmbral={inhUmbral} setInhUmbral={setInhUmbral} cfg={cfg}/>}
-            {tab==="riesgo"      &&data&&<RiesgoPanel      data={data} cfg={cfg}/>}
+            {tab==="sictox"      &&data&&(
+              <>
+                <SicToxPanel data={data} inhUmbral={inhUmbral} setInhUmbral={setInhUmbral} cfg={cfg}/>
+                <div style={{height:24}}/>
+                <RiesgoPanel data={data} cfg={cfg}/>
+              </>
+            )}
             {tab==="calidad"     &&data&&<CalidadPanel     data={data} cfg={cfg}/>}
             {tab==="incidencias" &&      <IncidenciasPanel incidencias={incidencias} setIncidencias={setIncidencias}/>}
             {tab==="alertas"     &&      <AlertasPanel     alertas={alertas} setAlertas={setAlertas} disparadas={alertasDisp} cfg={cfg} setCfg={setCfg}/>}
