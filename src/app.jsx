@@ -88,11 +88,11 @@ function buildRows(records, cfg) {
     const oxOk=oxVal<0.01||oxVal>=2; // 0 o null = sin datos ox (registros históricos o sync viejo)
     const completo=(aur!=null&&aur>0&&rs1!=null&&rs1>0); // test terminado
     const oxIniV1=parseNum(v["ox_ini_v1"]), oxIniV2=parseNum(v["ox_ini_v2"]);
-    const rsOk = rs1!=null&&rs1>10&&rs2!=null&&rs2>10; // Rs Max 1 Y Rs Max 2 > 10
+    const rsOk = rs1!=null&&rs1>10; // solo Rs Max 1 > 10
     // O2 inicial > 4 en ambas etapas. Si el registro no trae estos campos (sync viejo,
     // antes de 09/09/2026), no se invalida por esto — solo se exige cuando el dato existe.
-    const oxIniOk = (oxIniV1==null&&oxIniV2==null) || (oxIniV1!=null&&oxIniV1>4&&oxIniV2!=null&&oxIniV2>4);
-    const valido=oxOk&&completo&&rsOk&&oxIniOk;
+    const oxIniOk = oxIniV1!=null&&oxIniV1>4&&oxIniV2!=null&&oxIniV2>4; // sin excepciones: se exige siempre
+    const valido=completo&&rsOk&&oxIniOk;
     rows.push({
       id: v["id"]??null,
       AUR:aur, INH:inh??0,
