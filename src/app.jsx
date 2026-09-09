@@ -625,7 +625,7 @@ function HistoricoPanel({data,cfg}){
 // ── Tab: Gráficas individuales de test ───────────────────────────
 const COLORES_TEST = ["#5a9e2f","#a8c820","#2563eb","#d97706","#7c3aed","#0891b2","#dc2626","#059669"];
 
-function GraficasPanel({data, curvas, setCurvas, cfg}){
+function GraficasPanel({data, curvas, setCurvas, cfg, token, instId}){
   const [testsSelec, setTestsSelec] = useState([]);
   const [variable, setVariable] = useState("ox");
   const [cargando, setCargando] = useState(false);
@@ -634,7 +634,9 @@ function GraficasPanel({data, curvas, setCurvas, cfg}){
   useEffect(()=>{
     if(!curvas){
       setCargando(true);
-      fetch('./curvas.json?t='+Date.now())
+      fetch(`${API_URL}/api/datos/${instId}/curvas`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
         .then(r=>r.ok?r.json():Promise.reject())
         .then(json=>{ setCurvas(json.curvas||{}); setCargando(false); })
         .catch(()=>setCargando(false));
@@ -1471,7 +1473,7 @@ function OnboardingPanel({onCSV,onXLSX,onDemo,hasData}){
 }
 
 // ── App ───────────────────────────────────────────────────────────
-export default function App(){
+function Dashboard({ token, instId, onLogout }){
   const [data,        setData]        = useState(null);
   const [demoMode,    setDemoMode]    = useState(false);
   const [tab,         setTab]         = useState("sictox");
@@ -1487,11 +1489,13 @@ export default function App(){
   const prevDispRef=useRef([]);
   const pred=data?predecirAUR(data.filter(d=>d.valido)):null;
 
-  // ── Auto-carga desde data.json (MySQL sync) ───────────────────
+  // ── Auto-carga desde la plataforma SN8 (sync_rubi.py) ──────────
   useEffect(()=>{
     async function cargarAuto(){
       try{
-        const res=await fetch('./data.json?t='+Date.now());
+        const res=await fetch(`${API_URL}/api/datos/${instId}/toxicidad`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         if(!res.ok) return;
         const json=await res.json();
         if(!json?.registros?.length) return;
@@ -1506,7 +1510,7 @@ export default function App(){
     // Refresco cada 10 minutos
     const interval=setInterval(cargarAuto, 10*60*1000);
     return ()=>clearInterval(interval);
-  },[]);
+  },[token,instId]);
 
   useEffect(()=>{
     if(!data) return;
@@ -1657,6 +1661,7 @@ export default function App(){
           {demoMode&&<Badge color={C.amber}>🎬 Demo</Badge>}
           {alertasDisp.length>0&&<Badge color={alertasDisp.some(a=>a.severidad==="critica")?C.red:C.amber}>🔔 {alertasDisp.length}</Badge>}
           <button onClick={()=>setShowOnboard(v=>!v)} style={{background:C.panel,color:C.muted,border:`1px solid ${C.border}`,borderRadius:8,padding:"6px 14px",fontSize:11,fontWeight:700,cursor:"pointer"}}>⚙️ Cargar</button>
+          <button onClick={onLogout} style={{background:C.panel,color:C.muted,border:`1px solid ${C.border}`,borderRadius:8,padding:"6px 14px",fontSize:11,fontWeight:700,cursor:"pointer"}}>Salir</button>
         </div>
       </div>
 
@@ -1729,7 +1734,7 @@ export default function App(){
           <div style={{flex:1,minWidth:0}}>
             {tab==="pred"        &&data&&<PredPanel        data={data} pred={pred} cfg={cfg}/>}
             {tab==="historico"   &&data&&<HistoricoPanel   data={data} cfg={cfg}/>}
-            {tab==="graficas"    &&data&&<GraficasPanel    data={data} curvas={curvas} setCurvas={setCurvas} cfg={cfg}/>}
+            {tab==="graficas"    &&data&&<GraficasPanel    data={data} curvas={curvas} setCurvas={setCurvas} cfg={cfg} token={token} instId={instId}/>}
             {tab==="sictox"      &&data&&<SicToxPanel      data={data} inhUmbral={inhUmbral} setInhUmbral={setInhUmbral} cfg={cfg}/>}
             {tab==="riesgo"      &&data&&<RiesgoPanel      data={data} cfg={cfg}/>}
             {tab==="calidad"     &&data&&<CalidadPanel     data={data} cfg={cfg}/>}
@@ -1753,4 +1758,98 @@ export default function App(){
       </div>
     </div>
   );
+}
+
+// ══════════════════════════════════════════════════════════════════
+// Login + App — autenticacion contra la plataforma SN8
+// ══════════════════════════════════════════════════════════════════
+const API_URL = "https://sn8.sensaratech.com";
+
+function LoginScreen({ onLogin }) {
+  const [user, setUser]     = useState("");
+  const [pass, setPass]     = useState("");
+  const [error, setError]   = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setLoading(true); setError("");
+    try {
+      const res = await fetch(`${API_URL}/api/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: user, password: pass }),
+      });
+      if (!res.ok) { setError("Usuario o contraseña incorrectos"); setLoading(false); return; }
+      const data = await res.json();
+      onLogin(data.token, data.instalacion_id);
+    } catch {
+      setError("No se puede conectar con el servidor");
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div style={{
+      minHeight:"100vh", background:"#f8f9fa",
+      display:"flex", alignItems:"center", justifyContent:"center",
+      fontFamily:"system-ui,sans-serif",
+    }}>
+      <div style={{
+        background:"#fff", borderRadius:16, padding:"40px 48px",
+        width:360, boxShadow:"0 4px 24px rgba(0,0,0,0.08)",
+        border:"1px solid #f0f0f0",
+      }}>
+        <div style={{textAlign:"center", marginBottom:32}}>
+          <SensaraLogo size={40}/>
+          <div style={{fontSize:18, fontWeight:700, marginTop:12, letterSpacing:"-0.02em"}}>
+            SIC<span style={{color:C.lime}}>AIR</span>
+            <span style={{color:"#d0d0d0", margin:"0 6px", fontWeight:300}}>·</span>
+            <span style={{color:C.red}}>SicTox</span>
+          </div>
+          <div style={{fontSize:11, color:"#6b7280", marginTop:4}}>EDAR Rubí</div>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <div style={{marginBottom:14}}>
+            <label style={{display:"block", fontSize:11, fontWeight:600, color:"#6b7280",
+              textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:6}}>Usuario</label>
+            <input value={user} onChange={e=>setUser(e.target.value)}
+              autoComplete="username"
+              style={{width:"100%", padding:"10px 14px", borderRadius:8,
+                border:"1px solid #e5e7eb", fontSize:14, outline:"none", boxSizing:"border-box"}}/>
+          </div>
+          <div style={{marginBottom:20}}>
+            <label style={{display:"block", fontSize:11, fontWeight:600, color:"#6b7280",
+              textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:6}}>Contraseña</label>
+            <input type="password" value={pass} onChange={e=>setPass(e.target.value)}
+              autoComplete="current-password"
+              style={{width:"100%", padding:"10px 14px", borderRadius:8,
+                border:"1px solid #e5e7eb", fontSize:14, outline:"none", boxSizing:"border-box"}}/>
+          </div>
+          {error && (
+            <div style={{background:"#fef2f2", border:"1px solid #fecaca", borderRadius:8,
+              padding:"10px 14px", fontSize:12, color:"#dc2626", marginBottom:14}}>{error}</div>
+          )}
+          <button type="submit" disabled={loading} style={{
+            width:"100%", padding:"12px", borderRadius:8,
+            background: loading ? "#e5e7eb" : C.lime,
+            color:"#fff", fontWeight:700, fontSize:14,
+            border:"none", cursor: loading ? "not-allowed" : "pointer",
+          }}>
+            {loading ? "Conectando..." : "Entrar"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
+  const [token,  setToken]  = useState(null);
+  const [instId, setInstId] = useState(null);
+
+  if (!token) {
+    return <LoginScreen onLogin={(tok, inst) => { setToken(tok); setInstId(inst); }}/>;
+  }
+  return <Dashboard token={token} instId={instId} onLogout={() => { setToken(null); setInstId(null); }}/>;
 }
