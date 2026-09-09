@@ -94,6 +94,8 @@ function buildRows(records, cfg) {
       RS1:rs1??0, RS2:rs2??0, valido, completo,
       RN:parseNum(v["RN"])??0,
       ox_max_v1: parseNum(v["ox_max_v1"])??0,
+      ox_ini_v1: parseNum(v["ox_ini_v1"]),
+      ox_ini_v2: parseNum(v["ox_ini_v2"]),
       datetime:dt, diaSemana:dt.getDay(),
       label:`${fecha.slice(0,10)} ${hora.slice(0,5)}`,
     });
@@ -604,7 +606,7 @@ function HistoricoPanel({data,cfg}){
           <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
             <thead style={{position:"sticky",top:0,background:"#fff",zIndex:1}}>
               <tr style={{borderBottom:`2px solid ${C.border}`}}>
-                {["Fecha","Hora","AUR","Rs Max 1","Rs Max 2","RN"].map(h=>(
+                {["Fecha","Hora","AUR","Rs Max 1","Rs Max 2","RN","O₂ inicio V1","O₂ inicio V2"].map(h=>(
                   <th key={h} style={{padding:"8px 10px",fontSize:10,color:C.muted,textTransform:"uppercase",fontWeight:700,textAlign:"left"}}>{h}</th>
                 ))}
               </tr>
@@ -620,6 +622,8 @@ function HistoricoPanel({data,cfg}){
                     <td style={{padding:"6px 10px",fontFamily:"monospace"}}>{d.RS1!=null?d.RS1.toFixed(1):"—"}</td>
                     <td style={{padding:"6px 10px",fontFamily:"monospace"}}>{d.RS2!=null?d.RS2.toFixed(1):"—"}</td>
                     <td style={{padding:"6px 10px",fontFamily:"monospace"}}>{d.RN!=null?d.RN.toFixed(2):"—"}</td>
+                    <td style={{padding:"6px 10px",fontFamily:"monospace",color:C.blue}}>{d.ox_ini_v1!=null?d.ox_ini_v1.toFixed(2):"—"}</td>
+                    <td style={{padding:"6px 10px",fontFamily:"monospace",color:C.blue}}>{d.ox_ini_v2!=null?d.ox_ini_v2.toFixed(2):"—"}</td>
                   </tr>
                 );
               })}
