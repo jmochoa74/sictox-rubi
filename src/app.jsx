@@ -26,8 +26,8 @@ const C = {
 // ── Umbrales calibrados con histórico real Rubí 2025-09-25 / 2026-06-19 ─
 const DEFAULTS = {
   rs_min:      10,
-  inh_aviso:   60,
-  inh_critico: 50,
+  inh_aviso:   40,
+  inh_critico: 60,
   aur_bajo:    1.96,   // P10 AUR válidos Rubí (2765 tests)
   aur_ref:     3.61,   // Media AUR válidos Rubí
   kw_soplante: 7.5,
@@ -37,8 +37,8 @@ const DEFAULTS = {
 // ── Alertas por defecto ────────────────────────────────────────────
 const ALERT_DEF = [
   {id:"aur_bajo",    label:"AUR mínimo",          icon:"🔬", unit:"mgO₂/gSSV·h", campo:"AUR",    tipo:"min", valor:0.8,  activa:true,  sonido:true,  severidad:"critica"},
-  {id:"inh_aviso",   label:"INH alerta (>60%)",   icon:"☣️", unit:"%",           campo:"INH",    tipo:"max", valor:60,   activa:true,  sonido:false, severidad:"aviso"},
-  {id:"inh_critico", label:"INH crítico (>50%)",  icon:"☣️", unit:"%",           campo:"INH",    tipo:"max", valor:50,   activa:true,  sonido:true,  severidad:"critica"},
+  {id:"inh_aviso",   label:"INH alerta (>40%)",   icon:"☣️", unit:"%",           campo:"INH",    tipo:"max", valor:40,   activa:true,  sonido:false, severidad:"aviso"},
+  {id:"inh_critico", label:"INH crítico (>60%)",  icon:"☣️", unit:"%",           campo:"INH",    tipo:"max", valor:60,   activa:true,  sonido:true,  severidad:"critica"},
   {id:"vertido",     label:"Vertido confirmado",  icon:"🚨", unit:"(INH+AUR)",   campo:"vertido",tipo:"max", valor:0,    activa:true,  sonido:true,  severidad:"critica"},
 ];
 const TIPOS_INC = [
@@ -387,8 +387,8 @@ function Semaforo({data,alertasDisp,cfg}){
   const msgs={
     critico:"🚨 VERTIDO CRÍTICO — INH alta + AUR colapsada",
     vertido_conf:"⚠️ VERTIDO CONFIRMADO — INH>20% + AUR baja",
-    inh_critico:"☣️ INHIBICIÓN CRÍTICA >50%",
-    inh_aviso:"⚠️ Inhibición elevada >60%",
+    inh_critico:"☣️ INHIBICIÓN CRÍTICA >60%",
+    inh_aviso:"⚠️ Inhibición elevada >40%",
     aur_bajo:"🔵 AUR baja — revisar fango",
     normal:"✅ Sistema operando correctamente",
     invalido:"⚠️ Último test inválido (O₂ inicial bajo — aireación deficiente)",
