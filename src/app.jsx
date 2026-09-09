@@ -627,8 +627,8 @@ function HistoricoPanel({data,cfg}){
                     <td style={{padding:"6px 10px",fontFamily:"monospace"}}>{d.RS1!=null?d.RS1.toFixed(1):"—"}</td>
                     <td style={{padding:"6px 10px",fontFamily:"monospace"}}>{d.RS2!=null?d.RS2.toFixed(1):"—"}</td>
                     <td style={{padding:"6px 10px",fontFamily:"monospace"}}>{d.RN!=null?d.RN.toFixed(2):"—"}</td>
-                    <td style={{padding:"6px 10px",fontFamily:"monospace",color:d.ox_ini_v1!=null&&d.ox_ini_v1>4?C.red:C.blue,fontWeight:d.ox_ini_v1!=null&&d.ox_ini_v1>4?700:400}}>{d.ox_ini_v1!=null?d.ox_ini_v1.toFixed(2):"—"}{d.ox_ini_v1!=null&&d.ox_ini_v1>4?" ⚠️":""}</td>
-                    <td style={{padding:"6px 10px",fontFamily:"monospace",color:d.ox_ini_v2!=null&&d.ox_ini_v2>4?C.red:C.blue,fontWeight:d.ox_ini_v2!=null&&d.ox_ini_v2>4?700:400}}>{d.ox_ini_v2!=null?d.ox_ini_v2.toFixed(2):"—"}{d.ox_ini_v2!=null&&d.ox_ini_v2>4?" ⚠️":""}</td>
+                    <td style={{padding:"6px 10px",fontFamily:"monospace",color:d.ox_ini_v1!=null&&d.ox_ini_v1<=4?C.red:C.blue,fontWeight:d.ox_ini_v1!=null&&d.ox_ini_v1<=4?700:400}}>{d.ox_ini_v1!=null?d.ox_ini_v1.toFixed(2):"—"}{d.ox_ini_v1!=null&&d.ox_ini_v1<=4?" ⚠️":""}</td>
+                    <td style={{padding:"6px 10px",fontFamily:"monospace",color:d.ox_ini_v2!=null&&d.ox_ini_v2<=4?C.red:C.blue,fontWeight:d.ox_ini_v2!=null&&d.ox_ini_v2<=4?700:400}}>{d.ox_ini_v2!=null?d.ox_ini_v2.toFixed(2):"—"}{d.ox_ini_v2!=null&&d.ox_ini_v2<=4?" ⚠️":""}</td>
                   </tr>
                 );
               })}
@@ -731,8 +731,8 @@ function GraficasPanel({data, curvas, setCurvas, cfg, token, instId}){
                     <td style={{padding:"4px 10px",fontFamily:"monospace"}}>{d.RS1?.toFixed(1)??"—"}</td>
                     <td style={{padding:"4px 10px",fontFamily:"monospace"}}>{d.RS2?.toFixed(1)??"—"}</td>
                     <td style={{padding:"4px 10px",fontFamily:"monospace",color:d.INH>=cfg.inh_aviso?C.red:C.text}}>{d.INH?.toFixed(0)??"—"}%</td>
-                    <td style={{padding:"4px 10px",fontFamily:"monospace",color:d.ox_ini_v1!=null&&d.ox_ini_v1>4?C.red:C.blue,fontWeight:d.ox_ini_v1!=null&&d.ox_ini_v1>4?700:400}}>{d.ox_ini_v1!=null?d.ox_ini_v1.toFixed(2):"—"}{d.ox_ini_v1!=null&&d.ox_ini_v1>4?" ⚠️":""}</td>
-                    <td style={{padding:"4px 10px",fontFamily:"monospace",color:d.ox_ini_v2!=null&&d.ox_ini_v2>4?C.red:C.blue,fontWeight:d.ox_ini_v2!=null&&d.ox_ini_v2>4?700:400}}>{d.ox_ini_v2!=null?d.ox_ini_v2.toFixed(2):"—"}{d.ox_ini_v2!=null&&d.ox_ini_v2>4?" ⚠️":""}</td>
+                    <td style={{padding:"4px 10px",fontFamily:"monospace",color:d.ox_ini_v1!=null&&d.ox_ini_v1<=4?C.red:C.blue,fontWeight:d.ox_ini_v1!=null&&d.ox_ini_v1<=4?700:400}}>{d.ox_ini_v1!=null?d.ox_ini_v1.toFixed(2):"—"}{d.ox_ini_v1!=null&&d.ox_ini_v1<=4?" ⚠️":""}</td>
+                    <td style={{padding:"4px 10px",fontFamily:"monospace",color:d.ox_ini_v2!=null&&d.ox_ini_v2<=4?C.red:C.blue,fontWeight:d.ox_ini_v2!=null&&d.ox_ini_v2<=4?700:400}}>{d.ox_ini_v2!=null?d.ox_ini_v2.toFixed(2):"—"}{d.ox_ini_v2!=null&&d.ox_ini_v2<=4?" ⚠️":""}</td>
                   </tr>
                 );
               })}
