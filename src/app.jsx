@@ -622,8 +622,8 @@ function HistoricoPanel({data,cfg}){
                     <td style={{padding:"6px 10px",fontFamily:"monospace"}}>{d.RS1!=null?d.RS1.toFixed(1):"—"}</td>
                     <td style={{padding:"6px 10px",fontFamily:"monospace"}}>{d.RS2!=null?d.RS2.toFixed(1):"—"}</td>
                     <td style={{padding:"6px 10px",fontFamily:"monospace"}}>{d.RN!=null?d.RN.toFixed(2):"—"}</td>
-                    <td style={{padding:"6px 10px",fontFamily:"monospace",color:C.blue}}>{d.ox_ini_v1!=null?d.ox_ini_v1.toFixed(2):"—"}</td>
-                    <td style={{padding:"6px 10px",fontFamily:"monospace",color:C.blue}}>{d.ox_ini_v2!=null?d.ox_ini_v2.toFixed(2):"—"}</td>
+                    <td style={{padding:"6px 10px",fontFamily:"monospace",color:d.ox_ini_v1!=null&&d.ox_ini_v1>4?C.red:C.blue,fontWeight:d.ox_ini_v1!=null&&d.ox_ini_v1>4?700:400}}>{d.ox_ini_v1!=null?d.ox_ini_v1.toFixed(2):"—"}{d.ox_ini_v1!=null&&d.ox_ini_v1>4?" ⚠️":""}</td>
+                    <td style={{padding:"6px 10px",fontFamily:"monospace",color:d.ox_ini_v2!=null&&d.ox_ini_v2>4?C.red:C.blue,fontWeight:d.ox_ini_v2!=null&&d.ox_ini_v2>4?700:400}}>{d.ox_ini_v2!=null?d.ox_ini_v2.toFixed(2):"—"}{d.ox_ini_v2!=null&&d.ox_ini_v2>4?" ⚠️":""}</td>
                   </tr>
                 );
               })}
@@ -702,7 +702,7 @@ function GraficasPanel({data, curvas, setCurvas, cfg, token, instId}){
           <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
             <thead style={{position:"sticky",top:0,background:"#fff"}}>
               <tr style={{borderBottom:`2px solid ${C.border}`}}>
-                {["","Fecha/Hora","AUR","Rs Max 1","Rs Max 2","INH","ox máx. (validez)","O₂ inicio V1","O₂ inicio V2"].map(h=>(
+                {["","Fecha/Hora","AUR","Rs Max 1","Rs Max 2","INH","O₂ inicio V1","O₂ inicio V2"].map(h=>(
                   <th key={h} style={{padding:"6px 10px",fontSize:10,color:C.muted,textTransform:"uppercase",fontWeight:700,textAlign:"left"}}>{h}</th>
                 ))}
               </tr>
@@ -726,9 +726,8 @@ function GraficasPanel({data, curvas, setCurvas, cfg, token, instId}){
                     <td style={{padding:"4px 10px",fontFamily:"monospace"}}>{d.RS1?.toFixed(1)??"—"}</td>
                     <td style={{padding:"4px 10px",fontFamily:"monospace"}}>{d.RS2?.toFixed(1)??"—"}</td>
                     <td style={{padding:"4px 10px",fontFamily:"monospace",color:d.INH>=cfg.inh_aviso?C.red:C.text}}>{d.INH?.toFixed(0)??"—"}%</td>
-                    <td style={{padding:"4px 10px",fontFamily:"monospace",color:oxOk?C.green:C.red,fontWeight:oxOk?400:700}}>{oxMax>0?oxMax.toFixed(2):"—"}{!oxOk&&oxMax>0?" ⚠️":""}</td>
-                    <td style={{padding:"4px 10px",fontFamily:"monospace",color:C.blue}}>{d.ox_ini_v1!=null?d.ox_ini_v1.toFixed(2):"—"}</td>
-                    <td style={{padding:"4px 10px",fontFamily:"monospace",color:C.blue}}>{d.ox_ini_v2!=null?d.ox_ini_v2.toFixed(2):"—"}</td>
+                    <td style={{padding:"4px 10px",fontFamily:"monospace",color:d.ox_ini_v1!=null&&d.ox_ini_v1>4?C.red:C.blue,fontWeight:d.ox_ini_v1!=null&&d.ox_ini_v1>4?700:400}}>{d.ox_ini_v1!=null?d.ox_ini_v1.toFixed(2):"—"}{d.ox_ini_v1!=null&&d.ox_ini_v1>4?" ⚠️":""}</td>
+                    <td style={{padding:"4px 10px",fontFamily:"monospace",color:d.ox_ini_v2!=null&&d.ox_ini_v2>4?C.red:C.blue,fontWeight:d.ox_ini_v2!=null&&d.ox_ini_v2>4?700:400}}>{d.ox_ini_v2!=null?d.ox_ini_v2.toFixed(2):"—"}{d.ox_ini_v2!=null&&d.ox_ini_v2>4?" ⚠️":""}</td>
                   </tr>
                 );
               })}
@@ -760,7 +759,7 @@ function GraficasPanel({data, curvas, setCurvas, cfg, token, instId}){
               <ComposedChart data={chartData} margin={{top:4,right:8,bottom:4,left:0}}>
                 <CartesianGrid strokeDasharray="3 3" stroke={C.gridLine}/>
                 <XAxis dataKey="n" tick={{fontSize:9,fill:C.muted}} label={{value:"Medida",position:"insideBottom",offset:-2,fontSize:10}}/>
-                <YAxis tick={{fontSize:9,fill:C.muted}}/>
+                <YAxis tick={{fontSize:9,fill:C.muted}} domain={variable==="ox"?[0,dataMax=>Math.max(dataMax,4.5)]:["auto","auto"]}/>
                 <Tooltip content={<CT/>}/>
                 <Legend/>
                 {series.map(s=>(
