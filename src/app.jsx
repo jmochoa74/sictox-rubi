@@ -1705,6 +1705,14 @@ function Dashboard({ token, instId, onLogout }){
             position:"sticky",
             top:80,
           }}>
+            <button onClick={()=>setTab("sictox")} style={{
+              display:"flex",alignItems:"center",gap:6,
+              width:"calc(100% - 20px)",margin:"0 10px 10px",background:tab==="sictox"?C.red:"#fff",
+              color:tab==="sictox"?"#fff":C.red,
+              border:`1px solid ${C.red}`,borderRadius:8,
+              padding:"8px 14px",fontSize:12,fontWeight:700,
+              cursor:"pointer",transition:"all .15s",
+            }}>🏠 Inicio (SicTox)</button>
             <div style={{fontSize:9,fontWeight:800,letterSpacing:"0.1em",color:C.muted,textTransform:"uppercase",padding:"0 14px",marginBottom:8}}>General</div>
             {TABS_GENERAL.map(t=>(
               <button key={t.id} onClick={()=>!t.disabled&&setTab(t.id)} style={{
